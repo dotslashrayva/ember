@@ -1,0 +1,13 @@
+use crate::vec3::Vec3;
+use std::io::Write;
+
+// Type alias for clarity
+pub type Color = Vec3;
+
+pub fn write_color(writer: &mut impl Write, color: Color) {
+    let ir = (255.999 * color.x) as i32;
+    let ig = (255.999 * color.y) as i32;
+    let ib = (255.999 * color.z) as i32;
+
+    write!(writer, "{} {} {}\n", ir, ig, ib).unwrap();
+}
