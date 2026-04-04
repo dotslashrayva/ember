@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use std::time::Instant;
 
 mod color;
 mod ray;
@@ -15,7 +16,6 @@ fn ray_color(ray: &Ray) -> Color {
     if t > 0.0 {
         let n = unit_vector(ray.at(t) - Vec3::new(0.0, 0.0, -1.0));
         return 0.5 * Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0);
-        //return Color::new(0.66, 0.66, 0.66);
     }
 
     let unit_direction = unit_vector(ray.direction);
@@ -25,15 +25,15 @@ fn ray_color(ray: &Ray) -> Color {
 
 fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
     let oc = center - ray.origin;
-    let a = dot(ray.direction, ray.direction);
-    let b = -2.0 * dot(ray.direction, oc);
-    let c = dot(oc, oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
+    let a = ray.direction.length_squared();
+    let h = dot(ray.direction, oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
 
     if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a);
+        return (h - discriminant.sqrt()) / a;
     };
 }
 
@@ -62,6 +62,12 @@ fn main() {
 
     write!(writer, "P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT).unwrap();
 
+    println!("Ember Renderer version 0.1.0");
+    println!("Image Dimensions: {} x {}", IMAGE_WIDTH, IMAGE_HEIGHT);
+    println!("Rendering Started");
+
+    let start = Instant::now();
+
     for j in 0..IMAGE_HEIGHT {
         for i in 0..IMAGE_WIDTH {
             let pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
@@ -72,4 +78,10 @@ fn main() {
             write_color(&mut writer, pixel_color);
         }
     }
+
+    let duration = start.elapsed();
+
+    println!("Rendering Completed");
+    println!("Time elapsed: {:?}", duration);
+    println!("Output Saved to ember.ppm");
 }

@@ -10,7 +10,6 @@ impl Ray {
         Self { origin, direction }
     }
 
-    #[allow(dead_code)]
     // P(t) function
     pub fn at(&self, t: f64) -> Point3 {
         self.origin + self.direction * t
